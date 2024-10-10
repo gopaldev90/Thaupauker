@@ -101,7 +101,7 @@ class PVZ2App:
             self.khojbtn.config(text=self.khojtxt)
             self.khojklk()
         else:
-            self.Staus.config(text="Aisa koi paudha nhin h")
+            self.Staus.config(text="Aisa koi paudha nhin h",fg='red')
     
     def zeromana(self):
         st = time.time()
