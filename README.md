@@ -27,7 +27,7 @@
 
 2. Ensure you have Python installed (3.7+ recommended).
 
-3. Install required libraries (if any; currently uses built-in modules).
+3. Install required libraries (if any).
 
 ---
 
@@ -91,5 +91,4 @@ This project is licensed under the **MIT License**. See `LICENSE` file for detai
 
 ## Credits
 
-Created by [gopaldev90](https://github.com/gopaldev90)  
-Special thanks to the PvZ2 modding community!
+Created by [gopaldev90](https://github.com/gopaldev90)
