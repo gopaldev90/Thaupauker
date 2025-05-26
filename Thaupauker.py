@@ -1,8 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
-import copy
-import json
-import os, time, platform
+import copy, ujson, os, time, platform
 
 if platform.system() == 'Linux':
     import sys
@@ -13,7 +11,6 @@ import Aftkr
 class PVZ2App:
     def __init__(self, root):
         self.root = root
-        self.phone = platform.system() == 'Linux'
         self.modifier = Aftkr.PVZ2Modifier()
         self.file_path = self.data = self.saveto = self.paun_folder = self.oldtaton = self.taton = None
         self.initisetxt()
@@ -34,19 +31,19 @@ class PVZ2App:
         button = tk.Button(self.root, text="Select JSON File", fg='white', bg='green', command=self.open_file_dialog)
         button.pack(pady=20)
 
-        self.sablgbtn = tk.Button(self.root, text="Sab Alag", command=self.sabalag)
+        self.sablgbtn = tk.Button(self.root, text="Sab Alag",  bg='blue', fg='white', command=self.sabalag)
         self.sablgbtn.config(state=tk.DISABLED)
         self.sablgbtn.place(relx=0.20, rely=0.18, anchor=tk.CENTER)
 
-        self.sabkmbtn = tk.Button(self.root, text="Sab Ekam", command=self.ekmsb)
+        self.sabkmbtn = tk.Button(self.root, text="Sab Ekam",  bg='blue', fg='white', command=self.ekmsb)
         self.sabkmbtn.config(state=tk.DISABLED)
         self.sabkmbtn.place(relx=0.5, rely=0.29, anchor=tk.CENTER)
 
-        self.rerechbtn = tk.Button(self.root, text="0 Cooldown", command=self.zeromana)
+        self.rerechbtn = tk.Button(self.root, text="0 Cooldown",  bg='blue', fg='white', command=self.zeromana)
         self.rerechbtn.config(state=tk.DISABLED)
         self.rerechbtn.place(relx=0.5, rely=0.38, anchor=tk.CENTER)
 
-        self.khojbtn = tk.Button(self.root, text=self.khojtxt, command=self.khojklk)
+        self.khojbtn = tk.Button(self.root, text=self.khojtxt, bg='blue', fg='white', command=self.khojklk)
         self.khojbtn.config(state=tk.DISABLED)
         self.khojbtn.place(relx=0.73, rely=0.18, anchor=tk.CENTER)
 
@@ -68,11 +65,11 @@ class PVZ2App:
         self.root.resizable(False, False)
         self.root.geometry("400x400")
         
-        if self.phone:
+        if platform.system() == 'Linux':
             self.open_file_dialog(True)
     
     def open_file_dialog(self,auto=False):
-        if ((not self.phone)or(not auto)):
+        if not auto:
             self.file_path = filedialog.askopenfilename(
                 title="Select a JSON file",
                 filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
@@ -90,7 +87,7 @@ class PVZ2App:
     
     def setdata(self):
         with open(self.file_path, 'r') as file:
-            ndata = json.load(file)
+            ndata = ujson.load(file)
         self.data = copy.deepcopy(ndata)
     
     def startfindnam(self, name):
@@ -114,26 +111,29 @@ class PVZ2App:
         ed = time.time()
         lga = ed - st
         self.Staus.config(text=f"samay lga zero mana\n karne main seconds: {lga}")
+        self.pragati.config(text='Sampoorn')
 
     def sabalag(self):
         st = time.time()
         self.sablgbtn.config(state=tk.DISABLED)
         self.sabkmbtn.config(state=tk.DISABLED)
-        self.modifier.sabalaga(self.data, self.saveto, self.pragati, self.root)
+        self.modifier.sabalaga(self.data, self.saveto, self.pragati, self.root, self.Tatonbox.get())
         self.setdata()
         ed = time.time()
         lga = ed - st
         self.Staus.config(text=f"samay lga sab \n alag karne main seconds: {lga}")
+        self.pragati.config(text='Sampoorn')
 
     def ekmsb(self):
         self.sabkmbtn.config(state=tk.DISABLED)
         self.sablgbtn.config(state=tk.DISABLED)
         st = time.time()
-        self.modifier.ekamsab(self.data, self.saveto, self.pragati, self.root)
+        self.modifier.ekamsab(self.data, self.saveto, self.pragati, self.root, self.Tatonbox.get())
         self.setdata()
         endm = time.time()
         lga = endm - st
         self.Staus.config(text=f"samay lga sab \n ek karne main seconds: {lga}")
+        self.pragati.config(text='Sampoorn')
 
     def khojklk(self):
         Seema = self.modifier.getSeema(self.data)
@@ -167,6 +167,7 @@ class PVZ2App:
                     self.Staus.config(text=self.grouptxt)
                     self.khojbtn.config(text=self.confirmtxt)
                     self.checkbox.config(state=tk.NORMAL)
+                    self.Staus.config(fg='black')
                 else:
                     self.taton = int(self.taton)
                     if not (0 <= self.taton <= Seema):
@@ -176,6 +177,7 @@ class PVZ2App:
                         self.Staus.config(text=self.modifier.naamde(self.data, self.taton))
                         self.khojbtn.config(text=self.confirmtxt)
                         self.checkbox.config(state=tk.NORMAL)
+                        self.Staus.config(fg='black')
         except Exception as e:
             v=0
             if v:

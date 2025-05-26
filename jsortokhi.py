@@ -2,6 +2,7 @@ import os
 from io import BytesIO
 from struct import unpack, pack, error
 from json import dumps, load
+import json, ujson
 
 class RTONDecoder():
 	
@@ -457,14 +458,28 @@ def torton(jsonpath):
         rton = rt.torton(file)
     print('to rton converted successfully')
     return rton
+
 def save_data(data, path, odf=None):
-    with open(path, 'wb') as f:
+    
+    if isinstance(data, bytes):
+        mode = 'wb'
+    elif isinstance(data, dict):
+        mode = 'w'
+        data = ujson.dumps(data)
+        
+    else:
+        mode = 'w'
+    
+    with open(path, mode) as f:
         f.write(data)
+    
     print(f'{path} saved successfully')
+    
     if odf:
-    	os.remove(odf)
-    	print('Clone deleted')
-    	
+        os.remove(odf)
+        print('Clone deleted')
+
+
 def process_files_in_place(work_dir, convert_func, ext_map,mita=True):
     for dirpath, dirnames, filenames in os.walk(work_dir):
         for filename in filenames:
@@ -507,7 +522,7 @@ if __name__ == "__main__":
 	    if mode == 1:
 	        ext_map = {'.json': '.rton'}
 	        func=torton
-	    elif mode == 2:
+	    else:
 	        ext_map = {'.rton': '.json'}
 	        ext_map['.dat']='.json'
 	        func=tojson

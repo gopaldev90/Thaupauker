@@ -6,7 +6,8 @@ from datetime import datetime
 import sys
 def get_data_path(filename):
     if getattr(sys, 'frozen', False):  # Check if the app is frozen (i.e., bundled)
-        return os.path.join(sys._MEIPASS, filename)  # _MEIPASS is where PyInstaller stores the bundled files
+        return os.path.join(sys._MEIPASS, filename)
+        # _MEIPASS is where PyInstaller stores the bundled files
     else:
         return filename  # Otherwise, use the normal filename
 
@@ -21,9 +22,9 @@ class PVZ2Modifier:
     def __init__(self):
         if platform.system()=='Linux':
         	import sys
-        	sys.path.append('/storage/emulated/0/pvz2/plant 1000 bnao/Tool/')
+        	sys.path.append('/storage/emulated/0/pvz2/plant_1000_bnao/Tool/')
         	
-        	self.__alreadypath='/storage/emulated/0/pvz2/plant 1000 bnao/Tool/alrdy.json'
+        	self.__alreadypath='/storage/emulated/0/pvz2/plant_1000_bnao/Tool/alrdy.json'
         else:
         	self.__alreadypath=get_data_path('alrdy.json')
         self.logs=""
@@ -37,10 +38,12 @@ class PVZ2Modifier:
             59,
             77,
             102,
-            147 
+            143,
+            147,
+            153
         ]
-        self.__alrdymod= self.__loadjson(self.__alreadypath) 
-    def __loadjson(self, path):
+        self.__alrdymod= self.loadjson(self.__alreadypath) 
+    def loadjson(self, path):
         if not os.path.exists(path):
         	alson={
         	'already': []
@@ -85,9 +88,10 @@ class PVZ2Modifier:
         Seema (int): Total number of plants.
         '''
         pratishat = ((taton + 1) / (Seema + 1)) * 100
-        status_text = "Sampurn" if pratishat >= 100 else "{:.2f}%".format(pratishat)
-        label.config(text=status_text)
-        root.update_idletasks()
+        if pratishat<100:
+        	status_text= "{:.2f}%".format(pratishat)	
+        	label.config(text=status_text)
+        	root.update_idletasks()
 
     def savejson(self, saveto, paun_folder, data, ston=False):
         '''
@@ -98,21 +102,20 @@ class PVZ2Modifier:
         paun_folder (str): Folder where JSON file is to be saved.
         data (dict): Data to be saved as JSON file.
         '''
+        import jsortokhi
         fo = os.path.join(saveto, paun_folder)
         filep = os.path.join(fo, "PlantLevels.json")
         if not os.path.exists(fo):
             os.makedirs(fo)
-        with open(filep, 'w') as f:
-            json.dump(data, f, indent=2)
-        lop = os.path.join(fo, "log.txt")
+        jsortokhi.save_data(data,filep)
         if ston:
-        	import jsortokhi
         	rton = jsortokhi.torton(filep)
-        	with open(os.path.join(fo,'PlantLevels.rton'),'wb')as f:
-        		f.write(rton)
+        	savep=(os.path.join(fo,'PlantLevels.rton'))
+        	jsortokhi.save_data(rton,savep)
         	self.logs+='Rton converted'
-        with open(lop, 'w') as f:
-            f.write(self.logs)
+        lop = os.path.join(fo, "log.txt")
+        jsortokhi.save_data(self.logs,lop)
+        print(self.logs)
         self.logs=""
     def naamde(self, data, taton):
         '''
@@ -172,7 +175,19 @@ class PVZ2Modifier:
         data["#vyakhya"]=vyakhya
         data["#credit"]="Hacked by Pvz2pagalpan"
         return data
-    def zeromana(self, data, label=False, root=False):
+    
+    def getkshetr(self,bound,data):
+        if(not (bound and ',' in bound)):
+        	shuru=0
+        	Seema = self.getSeema(data)
+        else:
+        	shuru,Seema=bound.split(',')
+        	shuru=int(shuru)
+        	Seema=int(Seema)
+       
+        return (shuru,Seema)
+    
+    def zeromana(self, data, label=False, root=False, bound=None):
         '''
         changes every plant's recharge to 0.
         Parameters:
@@ -182,8 +197,8 @@ class PVZ2Modifier:
         return: (dict) Json data 
         
         '''
-        seema = self.getSeema(data)
-        for taton in range(seema + 1):
+        shuru,seema=self.getkshetr(bound, data)
+        for taton in range(shuru, seema + 1):
             ch=0
             paunaam= self.naamde(data, taton)
             float_stats =data['objects'][taton]['objdata']['FloatStats']
@@ -198,11 +213,12 @@ class PVZ2Modifier:
                     if(ch>2):
                     	break
                     self.logs+=f"Zeroed {paunaam}'s {name}\n"
+            print(f'{taton}. {paunaam}')
             if label and root:
                 self.__updatestatus(label, root, taton, seema) 
         return data
     
-    def sabalaga(self, data, saveto, label=False, root=False):
+    def sabalaga(self, data, saveto, label=False, root=False, bound=None):
         '''
         Modify all plants and save the JSON files separately.
 
@@ -211,18 +227,15 @@ class PVZ2Modifier:
         saveto (str): Directory where JSON files are to be saved.
         label (tk.Label): Label to be updated.
         root (tk.Tk): Tkinter root for GUI updates.
+        bound (Str): Start and end bound seperated by , 
         '''
-        paunlist = []
-        Seema = self.getSeema(data)
-        shudhdata = copy.deepcopy(data)
         
-        for k in range(Seema + 1):
-            nam = self.naamde(data, k)
-            paunlist.append(nam)
-        for taton in range(Seema + 1):
-            paun_folder = paunlist[taton]
+        shudhdata = copy.deepcopy(data)
+        shuru,Seema=self.getkshetr(bound, data)
+        for taton in range(shuru, Seema + 1):
+            paun_folder = self.naamde(data, taton)
             data = copy.deepcopy(shudhdata)
-            
+            print(f'{taton}. {paun_folder}')
             data = self.update_json(taton, data, False, paun_folder)
             vyakhya = f"{paun_folder} Hacked by Pvz2pagalpan Id: {taton}"
             data["#vyakhya"] = vyakhya
@@ -231,7 +244,7 @@ class PVZ2Modifier:
             if label and root:
                 self.__updatestatus(label, root, taton, Seema)
 
-    def ekamsab(self, data, saveto, label=False, root=False):
+    def ekamsab(self, data, saveto, label=False, root=False, bound=None):
         '''
         Modify all plants and save them in a single JSON file.
 
@@ -240,11 +253,14 @@ class PVZ2Modifier:
         saveto (str): Directory where JSON file is to be saved.
         label (tk.Label): Label to be updated.
         root (tk.Tk): Tkinter root for GUI updates.
+        bound (Str): Start and end bound seperated by , 
         '''
-        Seema = self.getSeema(data)
-        for taton in range(Seema + 1):
+        shuru,Seema=self.getkshetr(bound, data)
+        
+        for taton in range(shuru,Seema + 1):
             
             paunaam = self.naamde(data, taton)
+            print(f'{taton}. {paunaam}')
             data = self.update_json(taton, data, False, paunaam)
             if label and root:
                 self.__updatestatus(label, root, taton, Seema)
@@ -301,7 +317,7 @@ class PVZ2Modifier:
 
         maxlvl = 1000
         levelcoins_values = [0] * maxlvl
-        locallogs += f"\n{paunam} changes:\n"
+        locallogs += f"\n{taton}. {paunam} changes:\n"
         float_stats = data['objects'][taton]['objdata']['FloatStats']
         conditionvalues = {
             "damage": 22339,
@@ -342,10 +358,17 @@ class PVZ2Modifier:
             if index is not None:
                 float_stats[index]["Values"][-1] = sh
                 locallogs = locallogs.replace(f"{name} last value\n99999999", f"{name} last value\n{sh}")
+                index=None
             
         locallogs+= f"cpf was\n{cpf}\n"
         if cpf:
-            iseligible = not any(skiplist[2] in stat.get('Name', '').lower() for stat in float_stats)
+            index=-1
+            for i,v in enumerate(float_stats):
+            	if (skiplist[2] in v.get("Name","").lower()):
+            		index=i
+            		break
+            
+            iseligible =(index==-1)
             locallogs+= f'Eligible\n{iseligible}\n'
             if iseligible:
                 
@@ -366,8 +389,11 @@ class PVZ2Modifier:
                     }
                     float_stats.append(pfpc_dict)
                     locallogs+=f'{nodename} added in float_stats\n'
-            else:
-                pass
+            elif False:
+                # yahan pe abhi kaam baaki hai
+                float_stats[index]["Values"][-1] = 123456789
+                locallogs+= "Plant food duration changed\n"
+                
 
         data['objects'][taton]['objdata']['LevelCoins'] = levelcoins_values
         locallogs+="LevelCoins changed\n"
@@ -377,11 +403,33 @@ class PVZ2Modifier:
         locallogs += 'LevelCap changed\n'
         
         
-        
-        
         self.logs+=locallogs
         return data
 
 
 if __name__ == "__main__":
-    pass
+    md = PVZ2Modifier()
+    data = md.loadjson("Plantlevels.json")
+    print('ek: se ek plant ko 1000 bnao')
+    print('sa: se sabhee plant alag alag')
+    print('se: se sabhee plant ek main')
+    print('z: se zeeromana suncost')
+    agya = input('aagyaa ').lower()
+    
+    sahej = "Edited"
+    if agya == 'ek':
+        tatton = int(input('plant index is: '))
+        cpf=(input('cpf:0=False: ')!='0')
+        pf = md.naamde(data, tatton)
+        data = md.update_json(tatton, data, cpf, pf, False)
+        md.savejson(sahej, f'{str(tatton)}.{pf}', data, True)
+    else:
+        kshetr = input('Shuru,Seema: ')
+        if agya == 'sa':
+            md.sabalaga(data, sahej, False, False, kshetr)
+        elif agya == 'se':
+            md.ekamsab(data, sahej, False, False, kshetr)
+        elif agya == 'z':
+            data = md.zeromana(data, False, False, kshetr)
+            md.savejson(os.getcwd(), os.path.join(sahej, "Zeromana"), data, True)
+            
