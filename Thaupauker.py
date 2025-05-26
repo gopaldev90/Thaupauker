@@ -4,7 +4,7 @@ import copy, ujson, os, time, platform
 
 if platform.system() == 'Linux':
     import sys
-    sys.path.append('/storage/emulated/0/pvz2/plant 1000 bnao/Tool/')
+    sys.path.append('/storage/emulated/0/pvz2/plant_1000_bnao/Tool/')
     
 import Aftkr
 
@@ -75,7 +75,7 @@ class PVZ2App:
                 filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
             )
         else:
-            self.file_path = '/storage/emulated/0/pvz2/plant 1000 bnao/Tool/PlantLevels.json'
+            self.file_path = '/storage/emulated/0/pvz2/plant_1000_bnao/Tool/PlantLevels.json'
         
         if self.file_path:
             self.saveto = os.path.dirname(self.file_path) + "/Edited/"
