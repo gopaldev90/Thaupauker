@@ -71,7 +71,7 @@ Thaupauker/
 ├── Thaupauker.py         # Main GUI and logic
 ├── Aftkr.py              # Core function handlers
 ├── jsortokhi.py          # Utility functions
-├── alrdy.json            # Backup of existing plant data
+├── alrdy.json            # Already hacked plant data
 └── README.md             # Project documentation
 ```
 
